@@ -4,10 +4,14 @@ import sys
 import re
 
 def Main(args):
-    if len(args) != 2:
-        print("Bad invocation.")
+    if len(args) > 2 or (len(args) > 1 and args[1] == "--help"):
+        print("Usage: {0} [filename]".format(args[0]))
+        print("If filename is not provided, stdin will be used.")
         return 1
-    fin = open(args[1],"r")
+    if len(args) == 2:
+        fin = open(args[1],"r")
+    else:
+        fin = sys.stdin
     for line in fin:
         match = re.search("0x([0-9A-Fa-f]{1,2})",line)
         if not match:

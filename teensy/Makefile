@@ -442,7 +442,7 @@ gccversion :
 #program: $(TARGET).hex $(TARGET).eep
 #	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
 program: $(TARGET).hex $(TARGET).eep
-	teensy-loader-cli -mmcu=$(MCU) -w $(TARGET).hex
+	teensy_loader_cli --mcu=$(MCU) $(TARGET).hex
 
 flash: program
 

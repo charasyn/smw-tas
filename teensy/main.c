@@ -11,23 +11,22 @@
 #define MAX_BYTES 2
 
 static const uint16_t data[] PROGMEM = {
-    // to use the buttons generated from the TAS inputs,
-    //     comment out these three lines and
-    //     uncomment the last line
     #include "../buttons-tas.txt"
     #include "../buttons-first.txt"
     #include "../buttons-second.txt"
-
-    //#include "../gen/buttons.txt"
 };
 #define data_size ((sizeof(data)/sizeof(data[0])))
+
+static const uint16_t data_del[] PROGMEM = {
+    #include "../buttons-delete-saves.txt"
+};
+#define data_del_size ((sizeof(data_del)/sizeof(data_del[0])))
 
 static uint8_t buffer[MAX_BYTES];
 static volatile uint8_t waiting_for_int;
 
 int main(void){
     uint16_t offset;
-    uint8_t count;
 
     // set for 16 MHz clock
     // idk if this is necessary but i'm keeping it here anyways
@@ -40,26 +39,56 @@ int main(void){
 	DDR(clk_reg)   &= ~PBV(clk_reg,clk_bit);     // clk in
 	DDR(latch_reg) &= ~PBV(latch_reg,latch_bit); // latch in
 
+    led_low;
+
+    _delay_ms(500);
+
+    //led_high;
+
 	cli();
 	EIFR  = 0xff;            // clear interrupt flags (for good luck)
 	EICRA = latch_EICRA_val; // interrupt on falling edge of INT0
 	EIMSK = latch_EIMSK_val; // enable only INT0 (D0 on ATmega32u4)
     sei();
 
+    // delete saves
+    for(offset = 0; offset < data_del_size; offset++){
+        uint16_t tmp = pgm_read_word(data_del + offset);
+        buffer[0] = tmp & 0xff;
+        buffer[1] = tmp >> 8;
+        waiting_for_int = 1;
+        if(offset & 0xf)
+            led_low;
+        else
+            led_high;
+        for(; waiting_for_int;) { _delay_us(1); }
+    }
+
+    // wait 5 ticks
+    for(offset = 0; offset < 5; offset++){
+        led_high;
+        _delay_ms(800);
+        led_low;
+        _delay_ms(200);
+    }
+
+    // run main payload
     for(offset = 0; offset < data_size; offset++){
         uint16_t tmp = pgm_read_word(data + offset);
         buffer[0] = tmp & 0xff;
         buffer[1] = tmp >> 8;
         waiting_for_int = 1;
-        led_high;
-        for(count = 0; (count <= 238) && waiting_for_int; count++)
-            _delay_us(70);
+        if(offset & 0xf)
+            led_low;
+        else
+            led_high;
+        for(; waiting_for_int;) { _delay_us(1); }
     }
     for(;;){
         led_high;
         _delay_ms(200);
         led_low;
-        _delay_ms(200);
+        _delay_ms(800);
     }
 }
 
@@ -93,14 +122,14 @@ ISR(latch_ISR_vect)
 	bits=0;
 	bytes=0;
 
-	led_low;
-
     tmp=buffer[0];
     while(bytes<MAX_BYTES){
-        if(tmp&0x01)
+        if(tmp&0x01) {
             data_low;
-        else
+        }
+        else {
             data_high;
+        }
         tmp>>=1;
         bits++;
         if(bits==8){

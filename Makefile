@@ -1,8 +1,7 @@
-all: tools teensy
+all: teensy
 .PHONY: all clean tools teensy upload
 
 clean:
-	$(MAKE) -C tools clean
 	$(MAKE) -C teensy clean
 
 tools:

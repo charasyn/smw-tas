@@ -2,9 +2,9 @@
 #define led_reg D
 #define led_bit 6
 
-// SNES data on C7 
-#define data_reg F
-#define data_bit 5
+// SNES data on F5
+#define data_reg B
+#define data_bit 7
 
 // SNES clock on D1
 #define clk_reg D

@@ -34,5 +34,7 @@ on, you should find that the jailbreak has been installed. Enjoy! :)
 
 # Credits
 SethBling, for helping me take the jailbreak from proof-of-concept to finished product
+
 Masterjun, for making the TAS that the included jailbreak installer is based on
+
 Nintendo, for making Super Mario World and the SNES
